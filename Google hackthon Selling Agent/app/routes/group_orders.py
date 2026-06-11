@@ -4,7 +4,7 @@ GeoJSON $near query on MongoDB group_orders collection (2dsphere index).
 """
 import random
 import math
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter
 from pydantic import BaseModel
 from app.database import db
@@ -61,8 +61,8 @@ async def submit_group_order(order: GroupOrderRequest):
         "delivery_window": order.delivery_window,
         "location":        order.location,          # GeoJSON Point
         "status":          "pending",
-        "created_at":      datetime.utcnow(),
-        "expires_at":      datetime.utcnow() + timedelta(hours=6),
+        "created_at":      datetime.now(timezone.utc),
+        "expires_at":      datetime.now(timezone.utc) + timedelta(hours=6),
     }
 
     order_id   = None
@@ -93,7 +93,7 @@ async def submit_group_order(order: GroupOrderRequest):
         # Mark order as matched
         await db.group_orders.update_one(
             {"_id": result.inserted_id},
-            {"$set": {"status": "matched", "matched_at": datetime.utcnow()}},
+            {"$set": {"status": "matched", "matched_at": datetime.now(timezone.utc)}},
         )
 
     except Exception as exc:

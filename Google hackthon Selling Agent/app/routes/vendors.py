@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from app.database import db
 from app.models.vendor import VendorCreate
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter()
 
@@ -10,8 +10,8 @@ router = APIRouter()
 async def register_vendor(vendor: VendorCreate):
     doc = {
         "shop_name": vendor.shop_name,
-        "location": vendor.location.dict(),
-        "created_at": datetime.utcnow(),
+        "location": vendor.location.model_dump(),
+        "created_at": datetime.now(timezone.utc),
         "is_active": True,
     }
     result = await db.vendors.insert_one(doc)

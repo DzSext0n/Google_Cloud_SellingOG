@@ -19,7 +19,9 @@ class ChatRequest(BaseModel):
 
 @router.post("/message")
 async def chat_message(req: ChatRequest):
-    key = os.getenv("GEMINI_API_KEY", "AIzaSyBUVo-kDUCEX7zESFvYyVuO1VNb0ASr_oM")
+    key = os.getenv("GEMINI_API_KEY")
+    if not key:
+        raise HTTPException(status_code=503, detail="GEMINI_API_KEY not configured")
     url = _GEMINI_BASE + key
     system_ctx = (
         f'You are Midori, a cheerful AI sales assistant for VendorGroove Net — '
